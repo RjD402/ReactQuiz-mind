@@ -11,7 +11,8 @@ class QuizBee extends Component {
         questionBank: [],
         score: 0,
         responses: 0,
-        toTrans : []
+        toTrans : [],
+        pictures : []
     };
     getQuestions = () => {
         quizService().then(question => {
@@ -41,7 +42,7 @@ class QuizBee extends Component {
     clicked = () =>{
 
         console.log('btn clicked');
-        console.log(this.state.questionBank);
+        console.log(this.state.questionBank[0].question);
         let qlist = this.state.questionBank;
         var qarr = [];
         var qObj = {};
@@ -58,20 +59,46 @@ class QuizBee extends Component {
         this.setState({
             toTrans : qarr
         });
+        let translatedQues = {};
         JSON.stringify(qObj);
         console.log(qObj);
+        const that = this;
         axios.post('https://kbwotp0r1j.execute-api.us-east-1.amazonaws.com/dev/data',qObj)
         .then(function(response){
-            var translatedQues = response.data.message;
-            console.log(translatedQues);
+             translatedQues = response.data.message;
+            // console.log(translatedQues);
+            let i = 0;
+            for(var key in translatedQues)
+            {
+                qlist[i].question = translatedQues[`${key}`];
+                i++;
+            }
+            // console.log(`value of question bank first ${that.state.questionBank[2].question}`);  
+            console.log(qlist);
+            that.setState({
+                questionBank : qlist
+            });
+            // that.state.questionBank.map(function(question){
+            //     let counter = 1;
+            //     that.setState({
+            //         question : translatedQues.[`question${counter++}`]
+            //     })
+            // }
+            // );
+     
         })
         .catch(function(error){
             console.log(error);
         });
+        // this.setState({
+        //     questionBank : translatedQues
+        // });
+       
+        
     }
 
-    componentDidMount() {
-        this.getQuestions();
+     componentDidMount() {
+         this.getQuestions();
     }
     render() {
         return (
